@@ -1,12 +1,12 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: coolstore
+  name: coolstore-pipelines
   annotations:
     description: This demo showcase cloud-native applications using Red Hat OpenShift Application Runtimes
      (Spring Boot 1.x and 2.x, Eclipse Vert.x and Node.js) utilizing a microservices architecture
     iconClass: icon-rh-openjdk
-    openshift.io/display-name: Coolstore
+    openshift.io/display-name: Coolstore Pipelines
     tags: coolstore,cloud-native,java,springboot,vertx
     openshift.io/documentation-url: https://github.com/jeejeejango/cloud-native-demo
     openshift.io/support-url: https://github.com/jeejeejango/cloud-native-demo
