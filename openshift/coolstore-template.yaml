@@ -78,7 +78,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/catalog-spring-boot
+          uri: ${GIT_URI}catalog-spring-boot
         type: Git
       strategy:
         sourceStrategy:
@@ -115,7 +115,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/cart-spring-boot
+          uri: ${GIT_URI}cart-spring-boot
         type: Git
       strategy:
         sourceStrategy:
@@ -151,7 +151,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/gateway-vertx
+          uri: ${GIT_URI}gateway-vertx
         type: Git
       strategy:
         sourceStrategy:
@@ -187,7 +187,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/inventory-spring-boot
+          uri: ${GIT_URI}inventory-spring-boot
         type: Git
       strategy:
         sourceStrategy:
@@ -223,7 +223,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/web-nodejs
+          uri: ${GIT_URI}web-nodejs
         type: Git
       strategy:
         sourceStrategy:
@@ -1039,7 +1039,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/inventory-spring-boot
+          uri: ${GIT_URI}inventory-spring-boot
         type: Git
       strategy:
         jenkinsPipelineStrategy:
@@ -1073,7 +1073,7 @@ objects:
       source:
         git:
           ref: ${GIT_REF}
-          uri: ${GIT_URI}/cart-spring-boot
+          uri: ${GIT_URI}cart-spring-boot
         type: Git
       strategy:
         jenkinsPipelineStrategy:
