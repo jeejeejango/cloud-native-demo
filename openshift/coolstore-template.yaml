@@ -1,0 +1,1098 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: coolstore
+  annotations:
+    description: This demo showcase cloud-native applications using Red Hat OpenShift Application Runtimes
+     (Spring Boot 1.x and 2.x, Eclipse Vert.x and Node.js) utilizing a microservices architecture
+    iconClass: icon-rh-openjdk
+    openshift.io/display-name: Coolstore
+    tags: coolstore,cloud-native,java,springboot,vertx
+    openshift.io/documentation-url: https://github.com/jeejeejango/cloud-native-demo
+    openshift.io/support-url: https://github.com/jeejeejango/cloud-native-demo
+    version: 1.0.0
+message: >-
+  A new cloud-native applications using Red Hat OpenShift Application Runtimes
+  (Spring Boot 1.x and 2.x, Eclipse Vert.x and Node.js) utilizing a microservices architecture
+  has been created.
+labels:
+  application: "coolstore"
+parameters:
+  - description: Git source base URI for application
+    displayName: Git Repository
+    name: GIT_URI
+    required: true
+    value: https://github.com/jeejeejango/
+  - description: Git branch/tag reference
+    displayName: Git Branch/Tag
+    name: GIT_REF
+    required: true
+    value: master
+  - description: Maven mirror url e.g. Artifactory or Nexus http://nexus.devops.svc:8081/repository/maven-public/
+    displayName: Maven Mirror URL
+    name: MAVEN_MIRROR_URL
+    value: http://nexus.devops.svc:8081/repository/maven-public/
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: catalog
+      name: catalog
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: cart
+      name: cart
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: gateway
+      name: gateway
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: inventory
+      name: inventory
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: web
+      name: web
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: catalog
+      name: catalog
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: catalog:latest
+      runPolicy: Serial
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/catalog-spring-boot
+        type: Git
+      strategy:
+        sourceStrategy:
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+          from:
+            kind: ImageStreamTag
+            name: java:8
+            namespace: openshift
+        type: Source
+      triggers:
+        - generic:
+            secret: 26f0d384fdab122b
+          type: Generic
+        - github:
+            secret: b3c6f1f04b70ee2a
+          type: GitHub
+        - imageChange:
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: cart
+      name: cart
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: cart:latest
+      runPolicy: Serial
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/cart-spring-boot
+        type: Git
+      strategy:
+        sourceStrategy:
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+          from:
+            kind: ImageStreamTag
+            name: java:8
+            namespace: openshift
+        type: Source
+      triggers:
+        - generic:
+            secret: 26f0d384fdab122b
+          type: Generic
+        - github:
+            secret: b3c6f1f04b70ee2a
+          type: GitHub
+        - imageChange:
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: gateway
+      labels:
+        app: gateway
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: gateway:latest
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/gateway-vertx
+        type: Git
+      strategy:
+        sourceStrategy:
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+          from:
+            kind: ImageStreamTag
+            namespace: openshift
+            name: java:8
+        type: Source
+      triggers:
+        - github:
+            secret: KyiqYOEkn7w2ETK_LAUL
+          type: GitHub
+        - generic:
+            secret: 9VB9eGj2Vvt1GJRiGBKq
+          type: Generic
+        - type: ConfigChange
+        - imageChange: {}
+          type: ImageChange
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: inventory
+      name: inventory
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: inventory:latest
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/inventory-spring-boot
+        type: Git
+      strategy:
+        sourceStrategy:
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+          from:
+            kind: ImageStreamTag
+            namespace: openshift
+            name: java:8
+        type: Source
+      triggers:
+        - github:
+            secret: KyiqYOEkn7w2ETK_LAUL
+          type: GitHub
+        - generic:
+            secret: 9VB9eGj2Vvt1GJRiGBKq
+          type: Generic
+        - type: ConfigChange
+        - imageChange: {}
+          type: ImageChange
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: web
+      name: web
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: web:latest
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/web-nodejs
+        type: Git
+      strategy:
+        sourceStrategy:
+          from:
+            kind: ImageStreamTag
+            name: nodejs:8
+            namespace: openshift
+        type: Source
+      triggers:
+        - github:
+            secret: KyiqYOEkn7w2ETK_LAUL
+          type: GitHub
+        - generic:
+            secret: 9VB9eGj2Vvt1GJRiGBKq
+          type: Generic
+        - type: ConfigChange
+        - imageChange: {}
+          type: ImageChange
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: catalog
+      name: catalog
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: catalog
+        app: catalog
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: catalog
+            deploymentconfig: catalog
+        spec:
+          containers:
+            - image: catalog
+              imagePullPolicy: Always
+              name: catalog
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+                  name: http
+                - containerPort: 8787
+                  protocol: TCP
+                  name: jolokia
+              terminationMessagePath: /dev/termination-log
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 180
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - catalog
+            from:
+              kind: ImageStreamTag
+              name: catalog:latest
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: cart
+      name: cart
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: cart
+        app: cart
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: cart
+            deploymentconfig: cart
+        spec:
+          containers:
+            - image: cart
+              imagePullPolicy: Always
+              name: cart
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+                  name: http
+                - containerPort: 8787
+                  protocol: TCP
+                  name: jolokia
+              terminationMessagePath: /dev/termination-log
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 180
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - cart
+            from:
+              kind: ImageStreamTag
+              name: cart:latest
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: gateway
+      name: gateway
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: gateway
+        app: gateway
+      strategy:
+        activeDeadlineSeconds: 21600
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 3600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            deploymentconfig: gateway
+            app: gateway
+        spec:
+          containers:
+            - env:
+                - name: KUBERNETES_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+                - name: JAVA_OPTIONS
+                  value: -Dvertx.cacheDirBase=/tmp
+              image: gateway
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 180
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              name: gateway
+              ports:
+                - containerPort: 8080
+                  name: http
+                  protocol: TCP
+                - containerPort: 8787
+                  name: jolokia
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              terminationMessagePath: /dev/termination-log
+              envFrom:
+                - configMapRef:
+                    name: gateway
+          restartPolicy: Always
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - gateway
+            from:
+              kind: ImageStreamTag
+              name: gateway:latest
+          type: ImageChange
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: inventory
+      name: inventory
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: inventory
+        app: inventory
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: inventory
+            deploymentconfig: inventory
+        spec:
+          containers:
+            - image: inventory
+              imagePullPolicy: Always
+              name: inventory
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+                  name: http
+                - containerPort: 8787
+                  protocol: TCP
+                  name: jolokia
+              terminationMessagePath: /dev/termination-log
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /actuator/health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 180
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /actuator/health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - inventory
+            from:
+              kind: ImageStreamTag
+              name: inventory:latest
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: web
+      name: web
+    spec:
+      replicas: 1
+      selector:
+        app: web
+        deploymentconfig: web
+      strategy:
+        activeDeadlineSeconds: 21600
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: web
+            deploymentconfig: web
+        spec:
+          containers:
+            - env:
+                - name: COOLSTORE_GW_SERVICE
+                  value: gateway
+              image: web
+              imagePullPolicy: Always
+              name: web
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              terminationMessagePath: /dev/termination-log
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 180
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - web
+            from:
+              kind: ImageStreamTag
+              name: web:latest
+          type: ImageChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: catalog
+      name: catalog
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: catalog
+        deploymentconfig: catalog
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: cart
+      name: cart
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: cart
+        deploymentconfig: cart
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: inventory
+      name: inventory
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: inventory
+        deploymentconfig: inventory
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: gateway
+      name: gateway
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: gateway
+        deploymentconfig: gateway
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: web
+      name: web
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: web
+        deploymentconfig: web
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      labels:
+        app: catalog
+      name: catalog
+    spec:
+      port:
+        targetPort: 8080
+      to:
+        kind: Service
+        name: catalog
+        weight: 100
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      labels:
+        app: cart
+      name: cart
+    spec:
+      port:
+        targetPort: 8080
+      to:
+        kind: Service
+        name: cart
+        weight: 100
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      labels:
+        app: inventory
+      name: inventory
+    spec:
+      port:
+        targetPort: 8080
+      to:
+        kind: Service
+        name: inventory
+        weight: 100
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      labels:
+        app: gateway
+      name: gateway
+    spec:
+      port:
+        targetPort: 8080
+      to:
+        kind: Service
+        name: gateway
+        weight: 100
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      labels:
+        app: web
+      name: web
+    spec:
+      port:
+        targetPort: 8080
+      to:
+        kind: Service
+        name: web
+        weight: 100
+  - apiVersion: v1
+    kind: RoleBinding
+    metadata:
+      name: view
+      labels:
+        app: coolstore
+    roleRef:
+      name: view
+    subjects:
+      - kind: ServiceAccount
+        name: default
+  - apiVersion: v1
+    data:
+      application.properties: |-
+        spring.datasource.url=jdbc:postgresql://catalog-postgresql:5432/catalog
+        spring.datasource.username=catalog
+        spring.datasource.password=catalog
+        spring.datasource.driver-class-name=org.postgresql.Driver
+        spring.jpa.hibernate.ddl-auto=create
+    kind: ConfigMap
+    metadata:
+      name: catalog
+      labels:
+        app: catalog
+  - apiVersion: v1
+    data:
+      application.properties: |-
+        spring.datasource.url=jdbc:postgresql://inventory-postgresql:5432/inventory
+        spring.datasource.username=inventory
+        spring.datasource.password=inventory
+        spring.datasource.driver-class-name=org.postgresql.Driver
+        spring.jpa.hibernate.ddl-auto=create
+    kind: ConfigMap
+    metadata:
+      name: inventory
+      labels:
+        app: inventory
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: gateway
+      labels:
+        app: gateway
+    data:
+      catalog.api.host: catalog
+      catalog.api.port: '8080'
+      inventory.api.host: inventory
+      inventory.api.port: '8080'
+      cart.api.host: cart
+      cart.api.port: '8080'
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: inventory
+      labels:
+        app: inventory
+    stringData:
+      database-password: inventory
+      database-user: inventory
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: catalog
+      labels:
+        app: catalog
+    stringData:
+      database-password: catalog
+      database-user: catalog
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: inventory
+      name: inventory-postgresql
+    spec:
+      replicas: 1
+      selector:
+        name: inventory-postgresql
+        deploymentconfig: inventory-postgresql
+      strategy:
+        activeDeadlineSeconds: 21600
+        recreateParams:
+          timeoutSeconds: 600
+        resources: {}
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            app: coolstore
+            name: inventory-postgresql
+            deploymentconfig: inventory-postgresql
+        spec:
+          containers:
+            - env:
+                - name: POSTGRESQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-user
+                      name: inventory
+                - name: POSTGRESQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-password
+                      name: inventory
+                - name: POSTGRESQL_DATABASE
+                  value: inventory
+              image: postgresql
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 3
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                successThreshold: 1
+                tcpSocket:
+                  port: 5432
+                timeoutSeconds: 1
+              name: postgresql
+              ports:
+                - containerPort: 5432
+                  protocol: TCP
+              readinessProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -i
+                    - -c
+                    - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
+                      'SELECT 1'
+                failureThreshold: 3
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources:
+                limits:
+                  memory: 512Mi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /var/lib/pgsql/data
+                  name: inventory-postgresql-data
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - emptyDir: {}
+              name: inventory-postgresql-data
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - postgresql
+            from:
+              kind: ImageStreamTag
+              name: postgresql:9.6
+              namespace: openshift
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: inventory
+      name: inventory-postgresql
+    spec:
+      ports:
+        - port: 5432
+          protocol: TCP
+          targetPort: 5432
+      selector:
+        deploymentconfig: inventory-postgresql
+      type: ClusterIP
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: catalog
+      name: catalog-postgresql
+    spec:
+      replicas: 1
+      selector:
+        name: catalog-postgresql
+        deploymentconfig: catalog-postgresql
+      strategy:
+        activeDeadlineSeconds: 21600
+        recreateParams:
+          timeoutSeconds: 600
+        resources: {}
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            name: catalog-postgresql
+            deploymentconfig: catalog-postgresql
+            app: coolstore
+        spec:
+          containers:
+            - env:
+                - name: POSTGRESQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-user
+                      name: catalog
+                - name: POSTGRESQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-password
+                      name: catalog
+                - name: POSTGRESQL_DATABASE
+                  value: catalog
+              image: postgresql
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 3
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                successThreshold: 1
+                tcpSocket:
+                  port: 5432
+                timeoutSeconds: 1
+              name: postgresql
+              ports:
+                - containerPort: 5432
+                  protocol: TCP
+              readinessProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -i
+                    - -c
+                    - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
+                      'SELECT 1'
+                failureThreshold: 3
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources:
+                limits:
+                  memory: 512Mi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /var/lib/pgsql/data
+                  name: catalog-postgresql-data
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - emptyDir: {}
+              name: catalog-postgresql-data
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - postgresql
+            from:
+              kind: ImageStreamTag
+              name: postgresql:9.6
+              namespace: openshift
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: catalog
+      name: catalog-postgresql
+    spec:
+      ports:
+        - port: 5432
+          protocol: TCP
+          targetPort: 5432
+      selector:
+        deploymentconfig: catalog-postgresql
+      type: ClusterIP
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: inventory
+      name: inventory-pipeline
+    spec:
+      runPolicy: Parallel
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/inventory-spring-boot
+        type: Git
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfilePath: Jenkinsfile
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+            - name: DEV_PROJECT
+              value: dev
+            - name: STAGE_PROJECT
+              value: stage
+            - name: PROD_PROJECT
+              value: prod
+        type: JenkinsPipeline
+      triggers:
+        - github:
+            secret: V7l7DtTdDOaU3eioZb97
+          type: GitHub
+        - generic:
+            secret: KyDr2_YFsWMsOjaWuzw_
+          type: Generic
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: cart
+      name: cart-pipeline
+    spec:
+      runPolicy: Parallel
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}/cart-spring-boot
+        type: Git
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfilePath: Jenkinsfile
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+            - name: DEV_PROJECT
+              value: dev
+            - name: STAGE_PROJECT
+              value: stage
+            - name: PROD_PROJECT
+              value: prod
+        type: JenkinsPipeline
+      triggers:
+        - github:
+            secret: A7l7DtTdDOaU3eioZb97
+          type: GitHub
+        - generic:
+            secret: ZyDr2_YFsWMsOjaWuzw_
+          type: Generic
+        - type: ConfigChange
