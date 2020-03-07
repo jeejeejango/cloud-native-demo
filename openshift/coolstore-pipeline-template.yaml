@@ -1028,3 +1028,71 @@ objects:
       selector:
         deploymentconfig: catalog-postgresql
       type: ClusterIP
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: inventory
+      name: inventory-pipeline
+    spec:
+      runPolicy: Parallel
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}inventory-spring-boot
+        type: Git
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfilePath: Jenkinsfile
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+            - name: DEV_PROJECT
+              value: dev
+            - name: STAGE_PROJECT
+              value: stage
+            - name: PROD_PROJECT
+              value: prod
+        type: JenkinsPipeline
+      triggers:
+        - github:
+            secret: V7l7DtTdDOaU3eioZb97
+          type: GitHub
+        - generic:
+            secret: KyDr2_YFsWMsOjaWuzw_
+          type: Generic
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: cart
+      name: cart-pipeline
+    spec:
+      runPolicy: Parallel
+      source:
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_URI}cart-spring-boot
+        type: Git
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfilePath: Jenkinsfile
+          env:
+            - name: MAVEN_MIRROR_URL
+              value: ${MAVEN_MIRROR_URL}
+            - name: DEV_PROJECT
+              value: dev
+            - name: STAGE_PROJECT
+              value: stage
+            - name: PROD_PROJECT
+              value: prod
+        type: JenkinsPipeline
+      triggers:
+        - github:
+            secret: A7l7DtTdDOaU3eioZb97
+          type: GitHub
+        - generic:
+            secret: ZyDr2_YFsWMsOjaWuzw_
+          type: Generic
+        - type: ConfigChange
