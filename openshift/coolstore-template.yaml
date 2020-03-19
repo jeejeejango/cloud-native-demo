@@ -32,6 +32,10 @@ parameters:
     displayName: Maven Mirror URL
     name: MAVEN_MIRROR_URL
     value: http://nexus.devops.svc:8081/repository/maven-public/
+  - description: NPM mirror url e.g. Artifactory or Nexus http://nexus.devops.svc:8081/repository/npm-internal/
+    displayName: NPM Mirror URL
+    name: NPM_MIRROR_URL
+    value: http://nexus.devops.svc:8081/repository/npm-internal/
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -231,6 +235,9 @@ objects:
             kind: ImageStreamTag
             name: nodejs:8
             namespace: openshift
+          env:
+            - name: NPM_MIRROR
+              value: '${NPM_MIRROR_URL}'
         type: Source
       triggers:
         - github:
