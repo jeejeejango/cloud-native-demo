@@ -237,7 +237,7 @@ objects:
             namespace: openshift
           env:
             - name: NPM_MIRROR
-              value: '${NPM_MIRROR_URL}'
+              value: ${NPM_MIRROR_URL}
         type: Source
       triggers:
         - github:
