@@ -24,31 +24,4 @@ Node.js and AngularJS adopting the microservices architecture.
 * **Inventory**: a REST API for product's inventory status
 * **Cart**: a REST API for managing shopping cart for each customer
 
-```
-                    +-------------+
-                    |             |
-                    |     Web     |
-                    |             |
-                    |   Node.js   |
-                    |  AngularJS  |
-                    +------+------+
-                          |
-                          v
-                    +------+------+
-                    |             |
-                    | API Gateway |
-                    |             |
-                    |   Vert.x    |
-                    |             |
-                    +------+------+
-                          |
-       +---------+---------+---------+---------+
-       v                   v                   v
- +------+------+     +------+------+     +------+------+
- |             |     |             |     |             |
- |   Catalog   |     |  Inventory  |     |     Cart    |
- |             |     |             |     |             |
- | Spring Boot |     | Spring Boot |     | Spring Boot |
- |     1.x     |     |     2.x     |     |     1.x     |
- +-------------+     +-------------+     +-------------+
-```
+![CoolStore Architecture](img/coolstore-arch.png)
